@@ -22,11 +22,11 @@ class EndpointsTestCase(unittest.TestCase):
     def tearDown(self):
         self.app.db.drop_all()
 
-    def test_endpoint_of_numbers_with_empty_list(self):
+    def test__LISTING_endpoint_of_numbers_with_empty_list(self):
         response = self.client.get(url_for('numbers.list_numbers')).json
-        self.assertEqual(response, []) 
+        self.assertEqual(response['results'], []) 
 
-    def test_endpoint_of_numbers_with_one_element_in_the_list(self):
+    def test_LISTING_endpoint_of_numbers_with_one_element_in_the_list(self):
         data = {
             'value': '1234234234',
             'monthy_price': '11.44',
@@ -46,4 +46,29 @@ class EndpointsTestCase(unittest.TestCase):
                 'setup_price': 455.55, 
                 'value': '1234234234'}
         ]
-        self.assertEqual(response, response_expected) 
+        self.assertEqual(response['results'], response_expected) 
+
+    def test_pagination_query_params_of_LISTING_endpoint_of_numbers_with_10_elements_in_the_database(self):
+        self.create_x_total_of_numbers()
+        response = self.client.get(
+            f"{url_for('numbers.list_numbers')}?page=2&per_page=5").json
+        self.assertEqual(len(response['results']), 5)
+
+    def test_total_of_numbers_listing_should_be_max_of_20_even_if_the_database_has_more(self):
+        self.create_x_total_of_numbers(30)
+        response = self.client.get(
+            f"{url_for('numbers.list_numbers')}").json
+        self.assertEqual(len(response['results']), 20)
+    
+    def create_x_total_of_numbers(self, total: int = 10):
+        for _ in range(total):
+            data = {
+                'value': '1234234234',
+                'monthy_price': '11.44',
+                'setup_price': '455.55',
+                'currency': 'R$' 
+            }
+            serializer = DIDNumberSchema()
+            number = serializer.load(data)
+            self.app.db.session.add(number)
+            self.app.db.session.commit()
