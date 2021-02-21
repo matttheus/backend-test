@@ -35,7 +35,7 @@ def create_number():
     try:
         number = serializer.load(request.json)
     except ValidationError as error:
-        return error.messages, 401
+        return error.messages, 400
 
     current_app.db.session.add(number)
     current_app.db.session.commit()
