@@ -9,8 +9,10 @@ def configure(app):
 
 
 class DIDNumberSchema(ma.SQLAlchemyAutoSchema):
-    monthy_price = fields.Float()
-    setup_price = fields.Float()
+    monthy_price = fields.Float(required=True)
+    setup_price = fields.Float(required=True)
+    currency = fields.Str(required=True)
+    value = fields.Integer(required=True)
 
     class Meta:
         model = DIDNumber
