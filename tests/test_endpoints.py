@@ -38,14 +38,13 @@ class EndpointsTestCase(unittest.TestCase):
         self.app.db.session.add(number)
         self.app.db.session.commit()
         response = self.client.get(url_for('numbers.list_numbers')).json
-        response_expected = [
-            {
-                'currency': 'R$', 
-                'id': 1, 
-                'monthy_price': 11.44, 
-                'setup_price': 455.55, 
-                'value': '1234234234'}
-        ]
+        response_expected = [{
+            'currency': 'R$', 
+            'id': 1, 
+            'monthy_price': 11.44, 
+            'setup_price': 455.55, 
+            'value': '1234234234'
+        }]
         self.assertEqual(response['results'], response_expected) 
 
     def test_pagination_query_params_of_LISTING_endpoint_of_numbers_with_10_elements_in_the_database(self):
@@ -59,6 +58,59 @@ class EndpointsTestCase(unittest.TestCase):
         response = self.client.get(
             f"{url_for('numbers.list_numbers')}").json
         self.assertEqual(len(response['results']), 20)
+
+    def test_CREATE_number_using_endpoint_with_valid_data(self):
+        data = {
+            'currency': 'R$', 
+            'monthy_price': 11.44, 
+            'setup_price': 455.55, 
+            'value': '1234234234'
+        }
+        response = self.client.post(
+            url_for('numbers.create_number'), 
+            json=data
+        ).json
+        data.update({"id": 1})
+        expected_response = data
+        self.assertEqual(response, expected_response)
+
+    def test_status_code_201_when_create_a_number_successfully(self):
+        data = {
+            'currency': 'R$', 
+            'monthy_price': 11.44, 
+            'setup_price': 455.55, 
+            'value': '1234234234'
+        }
+        response = self.client.post(
+            url_for('numbers.create_number'), 
+            json=data
+        )
+        self.assertEqual(response.status_code, 201)
+
+    def test_error_message_when_setup_price_is_not_provided(self):
+        data = {
+            'currency': 'R$', 
+            'monthy_price': 11.44, 
+            'value': '1234234234'
+        }
+        response = self.client.post(
+            url_for('numbers.create_number'), 
+            json=data
+        ).json
+        error_message = {'setup_price': ['Missing data for required field.']}
+        self.assertEqual(response, error_message)
+
+    def test_status_code_400_when_setup_price_is_not_provided(self):
+        data = {
+            'currency': 'R$', 
+            'monthy_price': 11.44, 
+            'value': '1234234234'
+        }
+        response = self.client.post(
+            url_for('numbers.create_number'), 
+            json=data
+        )
+        self.assertEqual(response.status_code, 400)
     
     def create_x_total_of_numbers(self, total: int = 10):
         for _ in range(total):
