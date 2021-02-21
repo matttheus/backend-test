@@ -1,5 +1,5 @@
 # Run tests
 
 ```sh
-python -m unittest discover -s tests
+python -m unittest discover -s tests -v
 ```
