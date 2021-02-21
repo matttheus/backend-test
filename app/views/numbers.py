@@ -10,16 +10,19 @@ def list_numbers():
     try:
         page = int(request.args.get('page', 1))
         per_page = int(request.args.get('per_page', 20))
-        max_per_page = int(request.args.get('max_per_page', 20))
     except ValueError:
         page = 1
         per_page = 20
-        max_per_page = 20
 
     results = DIDNumber.query.paginate(
         page=page, 
         per_page=per_page, 
         error_out=True, 
-        max_per_page=max_per_page
+        max_per_page=20
     )
-    return serializer.jsonify(results.items), 200
+    response = {
+        'results': serializer.dump(results.items),
+        'page': page,
+        'per_page': per_page
+    }
+    return response, 200
