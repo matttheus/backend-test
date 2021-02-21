@@ -1,4 +1,5 @@
 from flask import Blueprint, current_app, request, jsonify
+from marshmallow import ValidationError
 from app.serializers import DIDNumberSchema
 from app.models import DIDNumber
 
@@ -26,3 +27,16 @@ def list_numbers():
         'per_page': per_page
     }
     return response, 200
+
+@bp_number.route('/', methods=['POST'])
+def create_number():
+    serializer = DIDNumberSchema()
+
+    try:
+        number = serializer.load(request.json)
+    except ValidationError as error:
+        return error.messages, 401
+
+    current_app.db.session.add(number)
+    current_app.db.session.commit()
+    return serializer.jsonify(number), 201
