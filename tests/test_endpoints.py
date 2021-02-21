@@ -120,7 +120,40 @@ class EndpointsTestCase(unittest.TestCase):
     def test_status_code_404_when_DELETE_a_number_which_does_not_exists(self):
         response = self.client.delete(url_for('numbers.delete_number', pk=1))
         self.assertEqual(response.status_code, 404)
-    
+
+    def test_UPDATE_number_using_endpoint_with_valid_data(self):
+        data = {
+            'currency': 'R$', 
+            'monthy_price': 11.44, 
+            'setup_price': 455.55, 
+            'value': '1234234234'
+        }
+        self.client.post(url_for('numbers.create_number'), json=data)
+
+        new_data = data.copy()
+        new_data.update({"value": '6666665555'})
+
+        response = self.client.put(
+            url_for('numbers.update_number', pk=1), 
+            json=new_data
+        ).json
+
+        self.assertTrue(response['value'] == new_data['value'])
+
+    def test_UPDATE_with_status_404_when_provided_id_does_not_exists(self):
+        data = {
+            'currency': 'R$', 
+            'monthy_price': 11.44, 
+            'setup_price': 455.55, 
+            'value': '1234234234'
+        }
+        response = self.client.put(
+            url_for('numbers.update_number', pk=1), 
+            json=data
+        )
+
+        self.assertEqual(response.status_code, 404)
+
     def create_x_total_of_numbers(self, total: int = 10):
         for _ in range(total):
             data = {

@@ -3,7 +3,9 @@ from marshmallow import ValidationError
 from app.serializers import DIDNumberSchema
 from app.models import DIDNumber
 
+
 bp_number = Blueprint('numbers', __name__, url_prefix='/numbers')
+
 
 @bp_number.route('/', methods=['GET'])
 def list_numbers():
@@ -28,6 +30,7 @@ def list_numbers():
     }
     return response, 200
 
+
 @bp_number.route('/', methods=['POST'])
 def create_number():
     serializer = DIDNumberSchema()
@@ -41,6 +44,7 @@ def create_number():
     current_app.db.session.commit()
     return serializer.jsonify(number), 201
 
+
 @bp_number.route('/<pk>', methods=['DELETE'])
 def delete_number(pk):
     query = DIDNumber.query.filter(DIDNumber.id == pk)
@@ -50,3 +54,13 @@ def delete_number(pk):
         return jsonify("Number deleted"), 200
     return jsonify("Not Found"), 404
 
+
+@bp_number.route('/<pk>', methods=['PUT'])
+def update_number(pk):
+    query = DIDNumber.query.filter(DIDNumber.id == pk)
+    if query.value('id'):
+        query.update(request.json)
+        current_app.db.session.commit()
+        serializer = DIDNumberSchema()
+        return serializer.jsonify(query.first()), 200
+    return jsonify("Not Found"), 404
