@@ -111,6 +111,15 @@ class EndpointsTestCase(unittest.TestCase):
             json=data
         )
         self.assertEqual(response.status_code, 400)
+
+    def test_status_code_200_when_DELETE_a_number(self):
+        self.create_x_total_of_numbers(1)
+        response = self.client.delete(url_for('numbers.delete_number', pk=1))
+        self.assertEqual(response.status_code, 200)
+
+    def test_status_code_404_when_DELETE_a_number_which_does_not_exists(self):
+        response = self.client.delete(url_for('numbers.delete_number', pk=1))
+        self.assertEqual(response.status_code, 404)
     
     def create_x_total_of_numbers(self, total: int = 10):
         for _ in range(total):

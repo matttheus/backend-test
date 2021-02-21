@@ -40,3 +40,13 @@ def create_number():
     current_app.db.session.add(number)
     current_app.db.session.commit()
     return serializer.jsonify(number), 201
+
+@bp_number.route('/<pk>', methods=['DELETE'])
+def delete_number(pk):
+    query = DIDNumber.query.filter(DIDNumber.id == pk)
+    if query.value('id'):
+        query.delete()
+        current_app.db.session.commit()
+        return jsonify("Number deleted"), 200
+    return jsonify("Not Found"), 404
+
