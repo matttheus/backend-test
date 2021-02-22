@@ -5,6 +5,8 @@ db = SQLAlchemy()
 def configure(app):
     db.init_app(app)
     app.db = db
+    with app.app_context():
+        app.db.create_all() 
 
 
 class DIDNumber(db.Model):
